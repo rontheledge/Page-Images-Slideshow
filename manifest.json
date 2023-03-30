@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Page Images Slideshow",
+  "version": "1.0",
+  "description": "Displays a slideshow of images on the current webpage",
+  "icons": {
+    "48": "icon.png"
+  },
+  "permissions": ["activeTab", "storage"],
+  "action": {
+    "default_icon": "icon.png",
+    "default_title": "Page Images Slideshow"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
