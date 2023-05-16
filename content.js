@@ -23,6 +23,12 @@ function startAutoplay() {
   }, 2000);
 }
 
+function resetAutoplay() {
+  if (slideshowInterval) {
+    startAutoplay();
+  }
+}
+
 function handleKeydown(event) {
   const slideshow = document.getElementById('slideshow');
   if (!slideshow) {
@@ -40,12 +46,10 @@ function handleKeydown(event) {
     stopAutoplay();
   } else if (event.key === 'ArrowLeft') {
     changeSlide(-1);
-    // reset timer
-    startAutoplay();
+    resetAutoplay();
   } else if (event.key === 'ArrowRight') {
     changeSlide(1);
-    // reset timer
-    startAutoplay();
+    resetAutoplay();
   } else {
     // send keypress if not handled here
     return;
