@@ -8,20 +8,52 @@ function closeSlideshow() {
   document.removeEventListener('keydown', handleKeydown);
 }
 
-
-function handleKeydown(event) {
-  if (event.key === 'Escape') {
-    closeSlideshow();
-    clearInterval(slideshowInterval);
-  } else if (event.key === 'ArrowLeft') {
-    changeSlide(-1);
-  } else if (event.key === 'ArrowRight') {
-    changeSlide(1);
-  }
+let slideshowInterval;
+function stopAutoplay() {
+  clearInterval(slideshowInterval);
+  slideshowInterval = null;
 }
 
-let slideshowInterval;
-function createSlideshow(images) {
+function startAutoplay() {
+  if (slideshowInterval) {
+    stopAutoplay();
+  }
+  slideshowInterval = setInterval(() => {
+    changeSlide(1);
+  }, 2000);
+}
+
+function handleKeydown(event) {
+  const slideshow = document.getElementById('slideshow');
+  if (!slideshow) {
+    return;
+  }
+
+  if (event.key === ' ') {
+    if (slideshowInterval !== null) {
+      stopAutoplay();
+    } else {
+      startAutoplay();
+    }
+  } else if (event.key === 'Escape') {
+    closeSlideshow();
+    stopAutoplay();
+  } else if (event.key === 'ArrowLeft') {
+    changeSlide(-1);
+    // reset timer
+    startAutoplay();
+  } else if (event.key === 'ArrowRight') {
+    changeSlide(1);
+    // reset timer
+    startAutoplay();
+  } else {
+    // send keypress if not handled here
+    return;
+  }
+  event.preventDefault();
+}
+
+function createSlideshow() {
   const slideshow = document.createElement('div');
   slideshow.id = 'slideshow';
   slideshow.innerHTML = `
@@ -60,14 +92,16 @@ function changeSlide(direction) {
 }
 
 function startSlideshow() {
-	 // Check if the slideshow is already active
+  // Check if the slideshow is already active
   if (document.getElementById('slideshow')) {
     return;
   }
-  const images = Array.from(document.images).map(img => img.src);
+  const images = Array.from(document.images).filter(img => img.naturalHeight > 100).map(img => img.src);
 	if(!images.length) {
-	alert('No images found on this page');
+    alert('No images found on this page');
+    return;
 	}
+
   const slideImages = images.map(src => {
     const slide = document.createElement('img');
     slide.className = 'slide';
@@ -76,7 +110,7 @@ function startSlideshow() {
     return slide;
   });
 
-  const slideshowContainer = createSlideshow(slideImages);
+  const slideshowContainer = createSlideshow();
 
   // Add slide images to the slideshow container
   slideImages.forEach(slide => {
@@ -86,12 +120,8 @@ function startSlideshow() {
   // Display the first image
   slideImages[0].style.display = 'block';
 
-  let index = 0;
-  setInterval(() => {
-    changeSlide(1);
-    index = (index + 1) % slideImages.length;
-  }, 2000);
-	// Listen for Escape key press
+  startAutoplay();
+	// Listen for key press
   document.addEventListener('keydown', handleKeydown);
 }
 
