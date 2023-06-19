@@ -9,15 +9,49 @@ function closeSlideshow() {
 }
 
 
+let slideshowIntervalSecs = 1;
 function handleKeydown(event) {
-  if (event.key === 'Escape') {
-    closeSlideshow();
-    clearInterval(slideshowInterval);
-  } else if (event.key === 'ArrowLeft') {
-    changeSlide(-1);
-  } else if (event.key === 'ArrowRight') {
-    changeSlide(1);
+  console.log('handleKeydown ' + event.key);
+  switch (event.key) {
+    case ' ':
+      if (slideshowInterval !== null) {
+        console.log('clear interval');
+        clearInterval(slideshowInterval);
+        slideshowInterval = null;
+      } else {
+        console.log('restart interval ' + slideshowIntervalSecs);
+        changeInterval(slideshowIntervalSecs);
+      }
+      break; 
+    case 'Escape': 
+      closeSlideshow();
+      clearInterval(slideshowInterval);
+      break;
+    case 'ArrowLeft':
+      changeSlide(-1);
+      break;
+    case 'ArrowRight':
+      changeSlide(1);
+      break;
+    case 'ArrowUp':
+      changeInterval(slideshowIntervalSecs + 1);
+      break;
+    case 'ArrowDown':
+      changeInterval(slideshowIntervalSecs - 1);
+      break;
   }
+}
+
+let index = 0;
+let slideImages;
+function changeInterval(secs) {
+  slideshowIntervalSecs = secs < 1 ? 1 : secs;
+  clearInterval(slideshowInterval);
+  slideshowInterval = setInterval(() => {
+    changeSlide(1);
+    index = (index + 1) % slideImages.length;
+  }, slideshowIntervalSecs * 1000)
+  console.log("changeInterval " + slideshowIntervalSecs);
 }
 
 let slideshowInterval;
@@ -68,7 +102,7 @@ function startSlideshow() {
 	if(!images.length) {
 	alert('No images found on this page');
 	}
-  const slideImages = images.map(src => {
+  slideImages = images.map(src => {
     const slide = document.createElement('img');
     slide.className = 'slide';
     slide.src = src;
@@ -86,11 +120,10 @@ function startSlideshow() {
   // Display the first image
   slideImages[0].style.display = 'block';
 
-  let index = 0;
-  setInterval(() => {
+  slideshowInterval = setInterval(() => {
     changeSlide(1);
     index = (index + 1) % slideImages.length;
-  }, 2000);
+  }, slideshowIntervalSecs * 1000);
 	// Listen for Escape key press
   document.addEventListener('keydown', handleKeydown);
 }
